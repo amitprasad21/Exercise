@@ -1,70 +1,169 @@
-# Getting Started with Create React App
+# Exercise App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React fitness application that helps users discover exercises, filter by body part, view exercise details, and watch related YouTube videos.
+
+## Project Overview
+
+This app uses the ExerciseDB RapidAPI service for exercise data and YouTube Search and Download RapidAPI service for video results.
+
+Main user flow:
+
+1. Open home page.
+2. Search or filter exercises by body part.
+3. Open an exercise detail page.
+4. View target/equipment related exercises and videos.
+
+## Features
+
+- Exercise list with pagination.
+- Search by exercise name, target muscle, equipment, and body part.
+- Horizontal body-part scroller.
+- Exercise detail page.
+- Related YouTube exercise videos.
+- Similar exercises by target muscle and equipment.
+- Infinity loader with status messages.
+- Defensive API handling for non-array/error responses.
+
+## Tech Stack
+
+- React 18
+- React Router v6
+- Material UI (MUI)
+- react-horizontal-scrolling-menu
+- react-loader-spinner
+- RapidAPI services:
+	- exercisedb.p.rapidapi.com
+	- youtube-search-and-download.p.rapidapi.com
+
+## Folder Structure
+
+Top-level structure:
+
+- src/components: reusable UI and feature components
+- src/pages: route pages
+- src/utils/fetchData.js: API base URLs, endpoint builders, request helpers
+- src/assets: icons and images
+
+Important files:
+
+- src/App.js: app shell and routes
+- src/pages/Home.js: home page
+- src/pages/ExerciseDetail.js: detail page
+- src/components/Exercises.js: list, pagination, loading/error states
+- src/components/SearchExercises.js: body-part list and text search
+- src/utils/fetchData.js: RapidAPI request layer and endpoint map
+
+## Setup Instructions
+
+### 1. Clone and install
+
+Run in project root:
+
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Create a file named .env in the project root and add:
+
+```env
+REACT_APP_RAPID_API_KEY=your_rapidapi_key_here
+```
+
+Notes:
+
+- The app reads the key from process.env.REACT_APP_RAPID_API_KEY.
+- Restart the dev server after changing .env.
+- Never commit your real API key.
+
+### 3. Start development server
+
+```bash
+npm start
+```
+
+Open http://localhost:3000 in your browser.
 
 ## Available Scripts
 
-In the project directory, you can run:
+- npm start: run in development mode
+- npm run build: build production bundle
+- npm test: run tests
 
-### `npm start`
+## API Notes
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Current endpoint patterns used:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- /exercises
+- /exercises/bodyPartList
+- /exercises/bodyPart/{bodyPart}
+- /exercises/exercise/{id}
+- /exercises/target/{target}
+- /exercises/equipment/{equipment}
+- /image?exerciseId={id}&resolution={size}
 
-### `npm test`
+Do not use placeholder paths like:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- /exercises/exercise/%7Bid%7D
+- /exercises/bodyPart/%7BbodyPart%7D
 
-### `npm run build`
+Replace placeholders with real values, for example:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- /exercises/exercise/0001
+- /exercises/bodyPart/back
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Troubleshooting
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Continuous loading
 
-### `npm run eject`
+Possible cause:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- API errors or invalid response shape.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+What to check:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. .env contains REACT_APP_RAPID_API_KEY.
+2. Dev server restarted after .env change.
+3. Browser console/network for 403 or 429 responses.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### HTTP 429 (Too Many Requests)
 
-## Learn More
+Cause:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- RapidAPI rate limit exceeded.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+What to do:
 
-### Code Splitting
+1. Wait for quota reset.
+2. Upgrade/adjust RapidAPI plan if needed.
+3. Add retries or caching if you extend this project.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### HTTP 403 (Forbidden)
 
-### Analyzing the Bundle Size
+Cause:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Invalid, expired, or unauthorized API key.
 
-### Making a Progressive Web App
+What to do:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+1. Regenerate key in RapidAPI dashboard.
+2. Update .env value.
+3. Restart app.
 
-### Advanced Configuration
+## Build and Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Build for production:
 
-### Deployment
+```bash
+npm run build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Output is generated in the build folder and can be deployed to any static hosting provider.
 
-### `npm run build` fails to minify
+## Future Improvements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Add retry button for failed requests.
+- Add request throttling/caching.
+- Add unit tests for API helpers and list filtering.
+- Add centralized error boundary for route-level failure handling.
