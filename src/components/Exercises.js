@@ -20,7 +20,7 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 
       try {
         if (bodyPart === 'all') {
-          exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions);
+          exercisesData = await fetchData('https://exercisedb.p.rapidapi.com//exercises/exercise', exerciseOptions);
         } else {
           exercisesData = await fetchData(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`, exerciseOptions);
         }
@@ -51,7 +51,7 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
     window.scrollTo({ top: 1800, behavior: 'smooth' });
   };
 
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loader message="Loading exercises..." />;
 
   if (loadError) {
     return (
