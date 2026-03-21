@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 
-import { exerciseOptions, fetchData, youtubeOptions } from '../utils/fetchData';
+import {
+  exerciseDbEndpoints,
+  exerciseOptions,
+  fetchData,
+  youtubeEndpoints,
+  youtubeOptions,
+} from '../utils/fetchData';
 import Detail from '../components/Detail';
 import ExerciseVideos from '../components/ExerciseVideos';
 import SimilarExercises from '../components/SimilarExercises';
@@ -18,20 +24,18 @@ const ExerciseDetail = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const fetchExercisesData = async () => {
-      const exerciseDbUrl = 'https://exercisedb.p.rapidapi.com';
-      const youtubeSearchUrl = 'https://youtube-search-and-download.p.rapidapi.com';
-
-      const exerciseDetailData = await fetchData(`${exerciseDbUrl}/exercises/exercise/${id}`, exerciseOptions);
+      const exerciseDetailData = await fetchData(exerciseDbEndpoints.exerciseById(id), exerciseOptions);
       setExerciseDetail(exerciseDetailData);
 
-      const exerciseVideosData = await fetchData(`${youtubeSearchUrl}/search?query=${exerciseDetailData.name} exercise`, youtubeOptions);
-      setExerciseVideos(exerciseVideosData.contents);
+      const [exerciseVideosData, targetMuscleExercisesData, equipmentExercisesData] = await Promise.all([
+        fetchData(youtubeEndpoints.search(`${exerciseDetailData.name} exercise`), youtubeOptions),
+        fetchData(exerciseDbEndpoints.targetExercises(exerciseDetailData.target), exerciseOptions),
+        fetchData(exerciseDbEndpoints.equipmentExercises(exerciseDetailData.equipment), exerciseOptions),
+      ]);
 
-      const targetMuscleExercisesData = await fetchData(`${exerciseDbUrl}/exercises/target/${exerciseDetailData.target}`, exerciseOptions);
-      setTargetMuscleExercises(targetMuscleExercisesData);
-
-      const equimentExercisesData = await fetchData(`${exerciseDbUrl}/exercises/equipment/${exerciseDetailData.equipment}`, exerciseOptions);
-      setEquipmentExercises(equimentExercisesData);
+      setExerciseVideos(exerciseVideosData.contents || []);
+      setTargetMuscleExercises(Array.isArray(targetMuscleExercisesData) ? targetMuscleExercisesData : []);
+      setEquipmentExercises(Array.isArray(equipmentExercisesData) ? equipmentExercisesData : []);
     };
 
     fetchExercisesData();
