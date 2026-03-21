@@ -1,27 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 
-import { exerciseOptions, fetchData } from '../utils/fetchData';
+import { exerciseDbEndpoints, exerciseOptions, fetchData } from '../utils/fetchData';
 import HorizontalScrollbar from './HorizontalScrollbar';
 
 const SearchExercises = ({ setExercises, bodyPart, setBodyPart }) => {
   const [search, setSearch] = useState('');
   const [bodyParts, setBodyParts] = useState([]);
+  const [searchError, setSearchError] = useState('');
 
   useEffect(() => {
     const fetchExercisesData = async () => {
-      const bodyPartsData = await fetchData('https://exercisedb.p.rapidapi.com/exercises/bodyPartList', exerciseOptions);
-      const normalizedBodyParts = Array.isArray(bodyPartsData) ? bodyPartsData : [];
+      try {
+        const bodyPartsData = await fetchData(exerciseDbEndpoints.bodyPartList(), exerciseOptions);
+        const normalizedBodyParts = Array.isArray(bodyPartsData) ? bodyPartsData : [];
 
-      setBodyParts(['all', ...normalizedBodyParts]);
+        setBodyParts(['all', ...normalizedBodyParts]);
+      } catch (error) {
+        setBodyParts(['all']);
+      }
     };
 
     fetchExercisesData();
   }, []);
 
   const handleSearch = async () => {
-    if (search) {
-      const exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions);
+    if (!search) {
+      return;
+    }
+
+    setSearchError('');
+
+    try {
+      const exercisesData = await fetchData(exerciseDbEndpoints.allExercises(), exerciseOptions);
       const normalizedExercises = Array.isArray(exercisesData) ? exercisesData : [];
 
       const searchedExercises = normalizedExercises.filter(
@@ -35,6 +46,8 @@ const SearchExercises = ({ setExercises, bodyPart, setBodyPart }) => {
 
       setSearch('');
       setExercises(searchedExercises);
+    } catch (error) {
+      setSearchError(error.message || 'Search failed. Please verify your API key and try again.');
     }
   };
 
@@ -56,6 +69,11 @@ const SearchExercises = ({ setExercises, bodyPart, setBodyPart }) => {
           Search
         </Button>
       </Box>
+      {searchError && (
+        <Typography color="error.main" textAlign="center" mb="20px">
+          {searchError}
+        </Typography>
+      )}
       <Box sx={{ position: 'relative', width: '100%', p: '20px' }}>
         <HorizontalScrollbar data={bodyParts} bodyParts setBodyPart={setBodyPart} bodyPart={bodyPart} />
       </Box>

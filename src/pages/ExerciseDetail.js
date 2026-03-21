@@ -1,43 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
-import { exerciseOptions, fetchData, youtubeOptions } from '../utils/fetchData';
+import {
+  exerciseDbEndpoints,
+  exerciseOptions,
+  fetchData,
+  youtubeEndpoints,
+  youtubeOptions,
+} from '../utils/fetchData';
 import Detail from '../components/Detail';
 import ExerciseVideos from '../components/ExerciseVideos';
 import SimilarExercises from '../components/SimilarExercises';
+import Loader from '../components/Loader';
 
 const ExerciseDetail = () => {
-  const [exerciseDetail, setExerciseDetail] = useState({});
+  const [exerciseDetail, setExerciseDetail] = useState(null);
   const [exerciseVideos, setExerciseVideos] = useState([]);
   const [targetMuscleExercises, setTargetMuscleExercises] = useState([]);
   const [equipmentExercises, setEquipmentExercises] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const { id } = useParams();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const fetchExercisesData = async () => {
-      const exerciseDbUrl = 'https://exercisedb.p.rapidapi.com';
-      const youtubeSearchUrl = 'https://youtube-search-and-download.p.rapidapi.com';
+      setIsLoading(true);
+      setLoadError('');
 
-      const exerciseDetailData = await fetchData(`${exerciseDbUrl}/exercises/exercise/${id}`, exerciseOptions);
-      setExerciseDetail(exerciseDetailData);
+      try {
+        const exerciseDetailData = await fetchData(exerciseDbEndpoints.exerciseById(id), exerciseOptions);
+        setExerciseDetail(exerciseDetailData);
 
-      const exerciseVideosData = await fetchData(`${youtubeSearchUrl}/search?query=${exerciseDetailData.name} exercise`, youtubeOptions);
-      setExerciseVideos(exerciseVideosData.contents);
+        const [exerciseVideosResult, targetMuscleExercisesResult, equipmentExercisesResult] = await Promise.allSettled([
+          fetchData(youtubeEndpoints.search(`${exerciseDetailData.name} exercise`), youtubeOptions),
+          fetchData(exerciseDbEndpoints.targetExercises(exerciseDetailData.target), exerciseOptions),
+          fetchData(exerciseDbEndpoints.equipmentExercises(exerciseDetailData.equipment), exerciseOptions),
+        ]);
 
-      const targetMuscleExercisesData = await fetchData(`${exerciseDbUrl}/exercises/target/${exerciseDetailData.target}`, exerciseOptions);
-      setTargetMuscleExercises(targetMuscleExercisesData);
-
-      const equimentExercisesData = await fetchData(`${exerciseDbUrl}/exercises/equipment/${exerciseDetailData.equipment}`, exerciseOptions);
-      setEquipmentExercises(equimentExercisesData);
+        setExerciseVideos(
+          exerciseVideosResult.status === 'fulfilled' ? exerciseVideosResult.value.contents || [] : [],
+        );
+        setTargetMuscleExercises(
+          targetMuscleExercisesResult.status === 'fulfilled' && Array.isArray(targetMuscleExercisesResult.value)
+            ? targetMuscleExercisesResult.value
+            : [],
+        );
+        setEquipmentExercises(
+          equipmentExercisesResult.status === 'fulfilled' && Array.isArray(equipmentExercisesResult.value)
+            ? equipmentExercisesResult.value
+            : [],
+        );
+      } catch (error) {
+        setLoadError(error.message || 'Unable to load this exercise right now.');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchExercisesData();
   }, [id]);
 
-  if (!exerciseDetail) return <div>No Data</div>;
+  if (isLoading) {
+    return <Loader message="Loading exercise details..." />;
+  }
+
+  if (loadError) {
+    return (
+      <Box sx={{ mt: { lg: '96px', xs: '60px' }, px: '20px' }}>
+        <Typography color="error.main" textAlign="center">
+          {loadError}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!exerciseDetail) {
+    return (
+      <Box sx={{ mt: { lg: '96px', xs: '60px' }, px: '20px' }}>
+        <Typography textAlign="center">No Data</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ mt: { lg: '96px', xs: '60px' } }}>

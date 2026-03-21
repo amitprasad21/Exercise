@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import { Box, Stack, Typography } from '@mui/material';
 
-import { exerciseOptions, fetchData } from '../utils/fetchData';
+import { exerciseDbEndpoints, exerciseOptions, fetchData } from '../utils/fetchData';
 import ExerciseCard from './ExerciseCard';
 import Loader from './Loader';
 
@@ -13,23 +13,27 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
   const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [bodyPart]);
+
+  useEffect(() => {
     const fetchExercisesData = async () => {
       setIsLoading(true);
       setLoadError('');
       let exercisesData = [];
 
       try {
-        if (bodyPart === 'all') {
-          exercisesData = await fetchData('https://exercisedb.p.rapidapi.com//exercises/exercise', exerciseOptions);
-        } else {
-          exercisesData = await fetchData(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`, exerciseOptions);
-        }
+        const endpoint = bodyPart === 'all'
+          ? exerciseDbEndpoints.allExercises()
+          : exerciseDbEndpoints.bodyPartExercises(bodyPart);
+
+        exercisesData = await fetchData(endpoint, exerciseOptions);
 
         if (!Array.isArray(exercisesData)) {
-          setLoadError('Unable to load exercises right now. Please try again in a moment.');
+          throw new Error('Exercise API returned an unexpected response format.');
         }
       } catch (error) {
-        setLoadError('Unable to load exercises right now. Please try again in a moment.');
+        setLoadError(error.message || 'Unable to load exercises right now. Please try again in a moment.');
       }
 
       setExercises(Array.isArray(exercisesData) ? exercisesData : []);
@@ -39,7 +43,6 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
     fetchExercisesData();
   }, [bodyPart, setExercises]);
 
-  // Pagination
   const indexOfLastExercise = currentPage * exercisesPerPage;
   const indexOfFirstExercise = indexOfLastExercise - exercisesPerPage;
   const normalizedExercises = Array.isArray(exercises) ? exercises : [];
@@ -47,7 +50,6 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 
   const paginate = (event, value) => {
     setCurrentPage(value);
-
     window.scrollTo({ top: 1800, behavior: 'smooth' });
   };
 
@@ -99,4 +101,3 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 };
 
 export default Exercises;
-
