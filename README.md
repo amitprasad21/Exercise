@@ -1,169 +1,86 @@
-# Exercise App
+# 🏋️‍♂️ Gym Exercises App - 100% Free Architecture
 
-A React fitness application that helps users discover exercises, filter by body part, view exercise details, and watch related YouTube videos.
+![React](https://img.shields.io/badge/React-18-blue.svg)
+![Material-UI](https://img.shields.io/badge/Material--UI-v5-blue.svg)
+![Status](https://img.shields.io/badge/Status-Fully%20Functional-brightgreen.svg)
+![APIs](https://img.shields.io/badge/APIs-100%25%20Free-success.svg)
 
-## Project Overview
+A modern, completely free React fitness application that helps users discover exercises, filter by body part, view targeted muscle groups, exercise details, and watch related tutorial videos.
 
-This app uses the ExerciseDB RapidAPI service for exercise data and YouTube Search and Download RapidAPI service for video results.
+## 🚀 Project Overview
 
-Main user flow:
+This app was originally built to rely on paid subscription tiers via RapidAPI (ExerciseDB & YouTube Search). However, **this repository has been completely refactored to use a 100% free architecture**. 
 
-1. Open home page.
-2. Search or filter exercises by body part.
-3. Open an exercise detail page.
-4. View target/equipment related exercises and videos.
+You no longer need to worry about rate limits, 403 Forbidden errors, or paying for API keys. 
 
-## Features
+### How it Works (The Free Architecture)
+1. **Exercise Data**: The app fetches over 870+ detailed exercises dynamically from a public-domain, static GitHub JSON repository (`free-exercise-db`). It perfectly mocks the original database natively in the client.
+2. **Video Integration**: Instead of the locked YouTube RapidAPI, this app now natively integrates the **Dailymotion Public Search API**. It fetches live, real exercise tutorial clips dynamically based on your search queries—completely free and without requiring any authentication keys.
+3. **Graceful Fallbacks**: The application infrastructure is highly defensive. Should any external requests fail, the app gracefully falls back to intelligent mock data rather than breaking or endlessly loading.
 
-- Exercise list with pagination.
-- Search by exercise name, target muscle, equipment, and body part.
-- Horizontal body-part scroller.
-- Exercise detail page.
-- Related YouTube exercise videos.
-- Similar exercises by target muscle and equipment.
-- Infinity loader with status messages.
-- Defensive API handling for non-array/error responses.
+---
 
-## Tech Stack
+## ✨ Features
 
-- React 18
-- React Router v6
-- Material UI (MUI)
-- react-horizontal-scrolling-menu
-- react-loader-spinner
-- RapidAPI services:
-	- exercisedb.p.rapidapi.com
-	- youtube-search-and-download.p.rapidapi.com
+- **Responsive Design**: Fluidly snapping grid layouts and scaled typography ensures the app looks stunning on Ultra-Wide monitors and small smartphones alike.
+- **Search Functionality**: Instantly search by exercise name, target muscle, equipment, or body part using the dynamic client-side filtering engine.
+- **Category Scroller**: A smooth horizontal scrollbar allowing you to filter cleanly by specific targeted categories (e.g., strength, cardio, back, chest).
+- **Exercise Details**: Comprehensive, dedicated detail pages explaining exactly how to perform the movement.
+- **Dynamic Videos**: Integrated live Dailymotion streaming cards that provide video instructions for the exact exercise you clicked on.
+- **Similar Exercises**: Smart suggestions linking you exclusively to exercises that use the same equipment or target the same primary muscle group.
 
-## Folder Structure
+---
 
-Top-level structure:
+## 🛠 Tech Stack
 
-- src/components: reusable UI and feature components
-- src/pages: route pages
-- src/utils/fetchData.js: API base URLs, endpoint builders, request helpers
-- src/assets: icons and images
+- **Framework**: [React 18](https://reactjs.org/)
+- **Routing**: React Router DOM v6
+- **UI Library**: [Material UI (MUI)](https://mui.com/)
+- **Data Fetching**: Native Javascript `Fetch` API
+- **Free Exercise DB**: `yuhonas/free-exercise-db` (Public Domain JSON)
+- **Free Video API**: Dailymotion Open REST API
 
-Important files:
+---
 
-- src/App.js: app shell and routes
-- src/pages/Home.js: home page
-- src/pages/ExerciseDetail.js: detail page
-- src/components/Exercises.js: list, pagination, loading/error states
-- src/components/SearchExercises.js: body-part list and text search
-- src/utils/fetchData.js: RapidAPI request layer and endpoint map
+## 💻 Setup Instructions
 
-## Setup Instructions
+Because the application has been untethered from paid API constraints, getting it running locally is incredibly fast and simple!
 
-### 1. Clone and install
-
-Run in project root:
-
+### 1. Clone & Install
+Open your terminal in the project root and install the dependencies:
 ```bash
 npm install
 ```
 
-### 2. Configure environment variables
+### 2. Environment Variables (Optional)
+The original `REACT_APP_RAPID_API_KEY` is completely **optional** now. 
+- If you have a RapidAPI YouTube Search key, the app will gracefully detect it and use it. 
+- If you *don't* have an API key, the app seamlessly ignores it and uses the Dailymotion integration and local caching instead.
 
-Create a file named .env in the project root and add:
-
-```env
-REACT_APP_RAPID_API_KEY=your_rapidapi_key_here
-```
-
-Notes:
-
-- The app reads the key from process.env.REACT_APP_RAPID_API_KEY.
-- Restart the dev server after changing .env.
-- Never commit your real API key.
-
-### 3. Start development server
-
+### 3. Start the Server
 ```bash
 npm start
 ```
+Open **[http://localhost:3000](http://localhost:3000)** in your browser. The app will immediately load without rate limits.
 
-Open http://localhost:3000 in your browser.
+---
 
-## Available Scripts
+## 📂 Folder Structure
 
-- npm start: run in development mode
-- npm run build: build production bundle
-- npm test: run tests
-
-## API Notes
-
-Current endpoint patterns used:
-
-- /exercises
-- /exercises/bodyPartList
-- /exercises/bodyPart/{bodyPart}
-- /exercises/exercise/{id}
-- /exercises/target/{target}
-- /exercises/equipment/{equipment}
-- /image?exerciseId={id}&resolution={size}
-
-Do not use placeholder paths like:
-
-- /exercises/exercise/%7Bid%7D
-- /exercises/bodyPart/%7BbodyPart%7D
-
-Replace placeholders with real values, for example:
-
-- /exercises/exercise/0001
-- /exercises/bodyPart/back
-
-## Troubleshooting
-
-### Continuous loading
-
-Possible cause:
-
-- API errors or invalid response shape.
-
-What to check:
-
-1. .env contains REACT_APP_RAPID_API_KEY.
-2. Dev server restarted after .env change.
-3. Browser console/network for 403 or 429 responses.
-
-### HTTP 429 (Too Many Requests)
-
-Cause:
-
-- RapidAPI rate limit exceeded.
-
-What to do:
-
-1. Wait for quota reset.
-2. Upgrade/adjust RapidAPI plan if needed.
-3. Add retries or caching if you extend this project.
-
-### HTTP 403 (Forbidden)
-
-Cause:
-
-- Invalid, expired, or unauthorized API key.
-
-What to do:
-
-1. Regenerate key in RapidAPI dashboard.
-2. Update .env value.
-3. Restart app.
-
-## Build and Deployment
-
-Build for production:
-
-```bash
-npm run build
+```
+├── src/
+│   ├── assets/         # Local icons and static graphic assets
+│   ├── components/     # Reusable UI features (Search, Cards, Detail UI)
+│   ├── pages/          # Full page views (Home, ExerciseDetail)
+│   ├── utils/          # Core network logic (fetchData.js handles the Free API routing)
+│   ├── App.js          # App shell and standard routing
+│   └── App.css         # Responsive styling instructions
 ```
 
-Output is generated in the build folder and can be deployed to any static hosting provider.
+## 🤝 Future Improvements
 
-## Future Improvements
+- Fully transition legacy API structures out of the codebase for cleaner static data mapping.
+- Add user-authentication to save "Favorite" exercises to a personal dashboard.
+- Create custom playlists of daily workout routines.
 
-- Add retry button for failed requests.
-- Add request throttling/caching.
-- Add unit tests for API helpers and list filtering.
-- Add centralized error boundary for route-level failure handling.
+Enjoy building and exploring!

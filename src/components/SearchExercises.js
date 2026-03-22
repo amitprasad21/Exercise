@@ -60,7 +60,7 @@ const SearchExercises = ({ setExercises, bodyPart, setBodyPart }) => {
       <Box position="relative" mb="72px">
         <TextField
           height="76px"
-          sx={{ input: { fontWeight: '700', border: 'none', borderRadius: '4px' }, width: { lg: '1170px', md: '750px', sm: '100%', xs: '100%' }, backgroundColor: '#fff', borderRadius: '40px' }}
+          sx={{ input: { fontWeight: '700', border: 'none', borderRadius: '4px', paddingRight: { lg: '180px', xs: '90px' } }, width: { lg: '1170px', md: '750px', sm: '100%', xs: '100%' }, backgroundColor: '#fff', borderRadius: '40px' }}
           value={search}
           onChange={(e) => setSearch(e.target.value.toLowerCase())}
           placeholder="Search Exercises"
