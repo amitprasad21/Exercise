@@ -18,30 +18,42 @@ const ExerciseDetail = () => {
   const [exerciseVideos, setExerciseVideos] = useState([]);
   const [targetMuscleExercises, setTargetMuscleExercises] = useState([]);
   const [equipmentExercises, setEquipmentExercises] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMSG, setErrorMSG] = useState('');
   const { id } = useParams();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const fetchExercisesData = async () => {
-      const exerciseDetailData = await fetchData(exerciseDbEndpoints.exerciseById(id), exerciseOptions);
-      setExerciseDetail(exerciseDetailData);
+      setIsLoading(true);
+      setErrorMSG('');
+      try {
+        const exerciseDetailData = await fetchData(exerciseDbEndpoints.exerciseById(id), exerciseOptions);
+        setExerciseDetail(exerciseDetailData);
 
-      const [exerciseVideosData, targetMuscleExercisesData, equipmentExercisesData] = await Promise.all([
-        fetchData(youtubeEndpoints.search(`${exerciseDetailData.name} exercise`), youtubeOptions),
-        fetchData(exerciseDbEndpoints.targetExercises(exerciseDetailData.target), exerciseOptions),
-        fetchData(exerciseDbEndpoints.equipmentExercises(exerciseDetailData.equipment), exerciseOptions),
-      ]);
+        const [exerciseVideosData, targetMuscleExercisesData, equipmentExercisesData] = await Promise.all([
+          fetchData(youtubeEndpoints.search(`${exerciseDetailData.name} exercise`), youtubeOptions),
+          fetchData(exerciseDbEndpoints.targetExercises(exerciseDetailData.target), exerciseOptions),
+          fetchData(exerciseDbEndpoints.equipmentExercises(exerciseDetailData.equipment), exerciseOptions),
+        ]);
 
-      setExerciseVideos(exerciseVideosData.contents || []);
-      setTargetMuscleExercises(Array.isArray(targetMuscleExercisesData) ? targetMuscleExercisesData : []);
-      setEquipmentExercises(Array.isArray(equipmentExercisesData) ? equipmentExercisesData : []);
+        setExerciseVideos(exerciseVideosData.contents || []);
+        setTargetMuscleExercises(Array.isArray(targetMuscleExercisesData) ? targetMuscleExercisesData : []);
+        setEquipmentExercises(Array.isArray(equipmentExercisesData) ? equipmentExercisesData : []);
+      } catch (error) {
+        setErrorMSG(error.message || 'Error occurred while loading exercise details.');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchExercisesData();
   }, [id]);
 
-  if (!exerciseDetail) return <div>No Data</div>;
+  if (isLoading) return <Box p="20px" textAlign="center" mt="100px">Loading Exercise Details...</Box>;
+  if (errorMSG) return <Box p="20px" textAlign="center" color="error.main" mt="100px">{errorMSG}</Box>;
+  if (!exerciseDetail || Object.keys(exerciseDetail).length === 0) return <div>No Data</div>;
 
   return (
     <Box sx={{ mt: { lg: '96px', xs: '60px' } }}>

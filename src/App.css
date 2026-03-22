@@ -49,8 +49,10 @@ body {
 }
 
 .detail-image {
-  width: 729px;
-  height: 742px;
+  width: 100%;
+  max-width: 729px;
+  height: auto;
+  object-fit: contain;
 }
 
 .hero-banner-img {
@@ -64,7 +66,8 @@ body {
 }
 
 .exercise-card {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: 445px;
   background: #fff;
   border-top: 4px solid #FF2625;
@@ -80,6 +83,8 @@ body {
 
 .exercise-card img {
   height: 326px;
+  width: 100%;
+  object-fit: cover;
 }
 
 .bodyPart-card {
@@ -101,20 +106,25 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 387px;
-  height: 381px;
+  width: 100%;
+  max-width: 387px;
+  height: auto;
   text-decoration: none;
+}
+
+.exercise-video img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 @media screen and (max-width:1200px) {
   .detail-image {
-    width: 300px;
-    height: 300px;
+    max-width: 400px;
   }
 
-
   .react-horizontal-scrolling-menu--scroll-container {
-    width: 500px;
+    width: 100%;
   }
 
   .left-arrow,
@@ -127,18 +137,19 @@ body {
   }
 
   .exercise-card {
-    width: 320px;
+    max-width: 320px;
   }
 
   .exercise-video {
-    width: 320px;
-    height: 300px;
+    max-width: 320px;
   }
-
 }
 
 @media screen and (max-width:400px) {
   .exercise-card {
-    width: 280px;
+    max-width: 280px;
+  }
+  .react-horizontal-scrolling-menu--scroll-container {
+    width: 100%;
   }
 }
